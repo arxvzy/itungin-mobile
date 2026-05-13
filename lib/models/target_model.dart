@@ -49,20 +49,26 @@ class CreateTargetRequest {
     required this.namaTarget,
     required this.targetJumlah,
     required this.tanggalTarget,
-    required this.kategori,
+    this.kategori,
   });
 
   final String namaTarget;
   final int targetJumlah;
   final String tanggalTarget;
-  final String kategori;
+  final String? kategori;
 
-  Map<String, dynamic> toJson() => {
-    'nama_target': namaTarget,
-    'target_jumlah': targetJumlah,
-    'tanggal_target': tanggalTarget,
-    'kategori': kategori,
-  };
+  Map<String, dynamic> toJson() {
+    final payload = <String, dynamic>{
+      'nama_target': namaTarget,
+      'target_jumlah': targetJumlah,
+      'tanggal_target': tanggalTarget,
+    };
+    final kategoriValue = kategori?.trim();
+    if (kategoriValue != null && kategoriValue.isNotEmpty) {
+      payload['kategori'] = kategoriValue;
+    }
+    return payload;
+  }
 }
 
 class TargetListResponse {
