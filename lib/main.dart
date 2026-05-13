@@ -10,6 +10,7 @@ import 'providers/api_diagnostics_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/dashboard_provider.dart';
+import 'providers/nav_provider.dart';
 import 'providers/target_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'services/auth_service.dart';
@@ -30,6 +31,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: diagnostics),
+        ChangeNotifierProvider(create: (_) => AppNavProvider()),
         ChangeNotifierProvider(
           create: (_) =>
               AuthProvider(AuthService(dioClient), storage)..checkSession(),

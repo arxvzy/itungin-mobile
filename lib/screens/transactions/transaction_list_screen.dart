@@ -9,7 +9,9 @@ import '../../widgets/app_shell.dart';
 import 'transaction_form_screen.dart';
 
 class TransactionListScreen extends StatefulWidget {
-  const TransactionListScreen({super.key});
+  const TransactionListScreen({super.key, this.showBottomNav = true});
+
+  final bool showBottomNav;
 
   @override
   State<TransactionListScreen> createState() => _TransactionListScreenState();
@@ -28,7 +30,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
     return Scaffold(
-      bottomNavigationBar: const AppBottomNav(currentIndex: 1),
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 1) : null,
       floatingActionButton: FloatingActionButton(
         backgroundColor: appBlue,
         foregroundColor: Colors.white,

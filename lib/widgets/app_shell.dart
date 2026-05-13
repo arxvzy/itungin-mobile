@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
+import '../providers/nav_provider.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/targets/target_list_screen.dart';
@@ -30,12 +31,9 @@ class AppHeader extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(9),
-              child: Image.asset(
-                'assets/images/logo.png',
-                fit: BoxFit.contain,
-              ),
+            child: const Icon(
+              Icons.account_balance_wallet_rounded,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 14),
@@ -221,7 +219,7 @@ class AppBottomNav extends StatelessWidget {
       indicatorColor: const Color(0xFFEAF1FF),
       onDestinationSelected: (index) {
         if (index == currentIndex) return;
-        Navigator.of(context).pushReplacement(slideRoute(items[index].$3));
+        context.read<AppNavProvider>().setIndex(index);
       },
       destinations: [
         NavigationDestination(icon: Icon(items[0].$1), label: items[0].$2),
@@ -231,22 +229,6 @@ class AppBottomNav extends StatelessWidget {
       ],
     );
   }
-}
-
-Route<T> slideRoute<T>(Widget page) {
-  return PageRouteBuilder<T>(
-    pageBuilder: (_, animation, secondaryAnimation) => page,
-    transitionsBuilder: (_, animation, secondaryAnimation, child) {
-      final tween = Tween<Offset>(
-        begin: const Offset(1, 0),
-        end: Offset.zero,
-      ).chain(CurveTween(curve: Curves.easeOutCubic));
-      return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-      );
-    },
-  );
 }
 
 void showSnack(BuildContext context, String message) {

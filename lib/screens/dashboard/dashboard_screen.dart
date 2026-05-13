@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/utils/currency_formatter.dart';
+import '../../providers/nav_provider.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../widgets/app_shell.dart';
-import '../chat/chat_screen.dart';
-import '../targets/target_list_screen.dart';
-import '../transactions/transaction_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  const DashboardScreen({super.key, this.showBottomNav = true});
+
+  final bool showBottomNav;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -30,7 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final provider = context.watch<DashboardProvider>();
     final dashboard = provider.dashboard;
     return Scaffold(
-      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 0) : null,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: provider.fetchDashboard,
@@ -68,7 +69,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: _QuickAction(
                                   icon: Icons.add_circle_outline_rounded,
                                   label: 'Transaksi',
-                                  onTap: (_) => const TransactionListScreen(),
+                                  destinationIndex: 1,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -76,7 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: _QuickAction(
                                   icon: Icons.track_changes_rounded,
                                   label: 'Target',
-                                  onTap: (_) => const TargetListScreen(),
+                                  destinationIndex: 2,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -84,7 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 child: _QuickAction(
                                   icon: Icons.smart_toy_rounded,
                                   label: 'Chat AI',
-                                  onTap: (_) => const ChatScreen(),
+                                  destinationIndex: 3,
                                 ),
                               ),
                             ],
@@ -211,11 +212,11 @@ class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.icon,
     required this.label,
-    this.onTap,
+    required this.destinationIndex,
   });
   final IconData icon;
   final String label;
-  final WidgetBuilder? onTap;
+  final int destinationIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -223,9 +224,7 @@ class _QuickAction extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: onTap == null
-            ? null
-            : () => Navigator.of(context).push(slideRoute(onTap!(context))),
+        onTap: () => context.read<AppNavProvider>().setIndex(destinationIndex),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(

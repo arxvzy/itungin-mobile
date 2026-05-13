@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_shell.dart';
-import '../dashboard/dashboard_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -37,10 +36,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final ok = await auth.login(_username.text, _password.text);
     if (!mounted) return;
     if (ok) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
-    } else if (auth.errorMessage != null) {
+      setState(() => _localError = null);
+      FocusScope.of(context).unfocus();
+      return;
+    }
+    if (auth.errorMessage != null) {
       setState(() => _localError = auth.errorMessage);
       showSnack(context, auth.errorMessage!);
     }
@@ -74,12 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.contain,
-                    ),
+                  child: const Icon(
+                    Icons.account_balance_wallet_rounded,
+                    color: Colors.white,
+                    size: 34,
                   ),
                 ),
                 const SizedBox(height: 24),

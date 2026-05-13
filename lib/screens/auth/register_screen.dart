@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../widgets/app_shell.dart';
 import '../../providers/auth_provider.dart';
-import '../dashboard/dashboard_screen.dart';
+import '../../widgets/app_shell.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -51,10 +50,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
     if (!mounted) return;
     if (ok) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
-      );
-    } else if (auth.errorMessage != null) {
+      setState(() => _localError = null);
+      FocusScope.of(context).unfocus();
+      return;
+    }
+    if (auth.errorMessage != null) {
       setState(() => _localError = auth.errorMessage);
       showSnack(context, auth.errorMessage!);
     }

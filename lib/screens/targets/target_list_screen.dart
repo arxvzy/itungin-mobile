@@ -10,7 +10,9 @@ import 'add_fund_screen.dart';
 import 'target_form_screen.dart';
 
 class TargetListScreen extends StatefulWidget {
-  const TargetListScreen({super.key});
+  const TargetListScreen({super.key, this.showBottomNav = true});
+
+  final bool showBottomNav;
 
   @override
   State<TargetListScreen> createState() => _TargetListScreenState();
@@ -29,7 +31,8 @@ class _TargetListScreenState extends State<TargetListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<TargetProvider>();
     return Scaffold(
-      bottomNavigationBar: const AppBottomNav(currentIndex: 2),
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 2) : null,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: provider.fetchTargets,

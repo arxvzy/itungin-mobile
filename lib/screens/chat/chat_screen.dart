@@ -10,7 +10,9 @@ import '../../providers/transaction_provider.dart';
 import '../../widgets/app_shell.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.showBottomNav = true});
+
+  final bool showBottomNav;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -38,7 +40,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ChatProvider>();
     return Scaffold(
-      bottomNavigationBar: const AppBottomNav(currentIndex: 3),
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 3) : null,
       body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(

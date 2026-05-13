@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/api_diagnostics_provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/dashboard/dashboard_screen.dart';
+import 'screens/main_shell.dart';
 
 class ItunginApp extends StatelessWidget {
   const ItunginApp({super.key});
@@ -61,7 +61,7 @@ class ItunginApp extends StatelessWidget {
                 );
               }
               return auth.isAuthenticated
-                  ? const DashboardScreen()
+                  ? const MainShell()
                   : const LoginScreen();
             },
           ),
