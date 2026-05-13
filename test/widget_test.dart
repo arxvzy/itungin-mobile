@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:myapp/main.dart';
+import 'package:myapp/app.dart';
+import 'package:myapp/core/network/dio_client.dart';
+import 'package:myapp/core/storage/secure_storage_service.dart';
+import 'package:myapp/providers/auth_provider.dart';
+import 'package:myapp/providers/chat_provider.dart';
+import 'package:myapp/providers/dashboard_provider.dart';
+import 'package:myapp/providers/target_provider.dart';
+import 'package:myapp/providers/transaction_provider.dart';
+import 'package:myapp/services/auth_service.dart';
+import 'package:myapp/services/chat_service.dart';
+import 'package:myapp/services/dashboard_service.dart';
+import 'package:myapp/services/target_service.dart';
+import 'package:myapp/services/transaction_service.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('shows Itungin login screen', (WidgetTester tester) async {
+    final storage = SecureStorageService();
+    final dioClient = DioClient(storage);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => AuthProvider(AuthService(dioClient), storage),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => DashboardProvider(DashboardService(dioClient)),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => TransactionProvider(TransactionService(dioClient)),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => TargetProvider(TargetService(dioClient)),
+          ),
+          ChangeNotifierProvider(
+            create: (_) => ChatProvider(ChatService(dioClient)),
+          ),
+        ],
+        child: const ItunginApp(),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Itungin'), findsOneWidget);
+    expect(find.text('Welcome Back'), findsOneWidget);
+    expect(find.byIcon(Icons.lock_outline), findsOneWidget);
   });
 }
