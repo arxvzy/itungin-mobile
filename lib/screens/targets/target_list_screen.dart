@@ -39,7 +39,6 @@ class _TargetListScreenState extends State<TargetListScreen> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 92),
             children: [
-              const AppHeader(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(

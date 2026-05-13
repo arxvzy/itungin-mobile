@@ -53,7 +53,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           child: Column(
             children: [
-              const AppHeader(),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),

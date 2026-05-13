@@ -47,7 +47,6 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 90),
             children: [
-              const AppHeader(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(

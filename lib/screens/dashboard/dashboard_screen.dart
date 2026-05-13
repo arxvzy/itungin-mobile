@@ -38,7 +38,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 24),
             children: [
-              const AppHeader(),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: provider.isLoading && dashboard == null
