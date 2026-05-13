@@ -153,14 +153,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         label: 'Username',
                         controller: _username,
                         icon: Icons.person_outline,
-                        hint: 'budi',
+                        hint: 'Masukkan username',
                       ),
                       const SizedBox(height: 18),
                       _AuthField(
                         label: 'Password',
                         controller: _password,
                         icon: Icons.lock_outline,
-                        hint: 'password',
+                        hint: 'Masukkan kata sandi',
                         obscureText: _obscure,
                         suffix: IconButton(
                           onPressed: () => setState(() => _obscure = !_obscure),

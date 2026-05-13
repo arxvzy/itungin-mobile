@@ -38,9 +38,34 @@ class _MainShellState extends State<MainShell> {
     return Consumer<AppNavProvider>(
       builder: (context, nav, _) {
         return Scaffold(
-          body: IndexedStack(
-            index: nav.currentIndex,
-            children: _pages,
+          body: SafeArea(
+            bottom: false,
+            child: ClipRect(
+              child: Stack(
+                children: List.generate(_pages.length, (index) {
+                  final isCurrent = index == nav.currentIndex;
+                  final targetOffset = isCurrent
+                      ? Offset.zero
+                      : Offset(index < nav.currentIndex ? -1.0 : 1.0, 0);
+                  return Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: !isCurrent,
+                      child: AnimatedSlide(
+                        offset: targetOffset,
+                        duration: const Duration(milliseconds: 320),
+                        curve: Curves.easeOutCubic,
+                        child: AnimatedOpacity(
+                          opacity: isCurrent ? 1 : 0,
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeOut,
+                          child: _pages[index],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
           bottomNavigationBar: AppBottomNav(currentIndex: nav.currentIndex),
         );
