@@ -1,3 +1,5 @@
+import '../core/utils/json_parsers.dart';
+
 class UserModel {
   const UserModel({
     required this.id,
@@ -18,11 +20,11 @@ class UserModel {
   final String? updatedAt;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
-    id: (json['id'] ?? 0) as int,
+    id: parseIntValue(json['id']),
     name: json['name']?.toString() ?? '',
     username: json['username']?.toString() ?? '',
     email: json['email']?.toString() ?? '',
-    saldo: (json['saldo'] as num?)?.toInt() ?? 0,
+    saldo: parseIntValue(json['saldo']),
     createdAt: json['created_at']?.toString(),
     updatedAt: json['updated_at']?.toString(),
   );

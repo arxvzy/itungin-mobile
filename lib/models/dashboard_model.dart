@@ -1,4 +1,5 @@
 import 'transaction_model.dart';
+import '../core/utils/json_parsers.dart';
 
 class DashboardModel {
   const DashboardModel({
@@ -21,9 +22,9 @@ class DashboardModel {
         : json;
     final recent = data['recent_transactions'];
     return DashboardModel(
-      totalWealth: (data['total_wealth'] as num?)?.toInt() ?? 0,
-      monthlyIncome: (data['monthly_income'] as num?)?.toInt() ?? 0,
-      monthlyExpense: (data['monthly_expense'] as num?)?.toInt() ?? 0,
+      totalWealth: parseIntValue(data['total_wealth']),
+      monthlyIncome: parseIntValue(data['monthly_income']),
+      monthlyExpense: parseIntValue(data['monthly_expense']),
       recentTransactions: recent is List
           ? recent
                 .map(
@@ -56,13 +57,13 @@ class DashboardChartModel {
   factory DashboardChartModel.fromJson(Map<String, dynamic> json) =>
       DashboardChartModel(
         labels: (json['labels'] as List? ?? const [])
-            .map((item) => (item as num).toInt())
+            .map((item) => parseIntValue(item))
             .toList(),
         actual: (json['actual'] as List? ?? const [])
-            .map((item) => (item as num).toDouble())
+            .map((item) => parseDoubleValue(item))
             .toList(),
         target: (json['target'] as List? ?? const [])
-            .map((item) => (item as num).toDouble())
+            .map((item) => parseDoubleValue(item))
             .toList(),
       );
 }

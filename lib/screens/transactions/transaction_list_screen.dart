@@ -46,68 +46,117 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             children: [
               const AppHeader(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Transaksi',
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Kelola aliran keuangan Anda',
-                      style: TextStyle(fontSize: 18, color: mutedText),
-                    ),
-                    const SizedBox(height: 28),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _TotalCard(
-                            label: 'Total Pemasukan',
-                            value: provider.totalPemasukan,
-                            icon: Icons.trending_up_rounded,
-                            color: appBlue,
-                          ),
+                    if (provider.errorMessage != null) ...[
+                      _InlineBanner(message: provider.errorMessage!),
+                      const SizedBox(height: 14),
+                    ],
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0B66FF), Color(0xFF0F8DFF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                      ],
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Transaksi',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Kelola pemasukan dan pengeluaran dalam satu tempat.',
+                            style: TextStyle(
+                              color: Color(0xFFD9E7FF),
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Saldo sekarang',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatRupiah(provider.saldo),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _StatMiniCard(
+                                  label: 'Pemasukan',
+                                  value: formatRupiah(provider.totalPemasukan),
+                                  icon: Icons.trending_up_rounded,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _StatMiniCard(
+                                  label: 'Pengeluaran',
+                                  value: formatRupiah(
+                                    provider.totalPengeluaran,
+                                  ),
+                                  icon: Icons.trending_down_rounded,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 18),
-                    _TotalCard(
-                      label: 'Total Pengeluaran',
-                      value: provider.totalPengeluaran,
-                      icon: Icons.trending_down_rounded,
-                      color: const Color(0xFF9A2208),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: ['semua', 'pemasukan', 'pengeluaran'].map((
+                          filter,
+                        ) {
+                          final selected = provider.currentFilter == filter;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: ChoiceChip(
+                              label: Text(
+                                filter[0].toUpperCase() + filter.substring(1),
+                              ),
+                              selected: selected,
+                              onSelected: (_) =>
+                                  provider.fetchTransactions(filter: filter),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                    const SizedBox(height: 28),
-                    Wrap(
-                      spacing: 10,
-                      children: ['semua', 'pemasukan', 'pengeluaran'].map((
-                        filter,
-                      ) {
-                        final selected = provider.currentFilter == filter;
-                        return ChoiceChip(
-                          label: Text(
-                            filter[0].toUpperCase() + filter.substring(1),
-                          ),
-                          selected: selected,
-                          onSelected: (_) =>
-                              provider.fetchTransactions(filter: filter),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 18),
                     const Text(
-                      'Daftar Transaksi',
+                      'Daftar transaksi',
                       style: TextStyle(
-                        fontSize: 26,
+                        fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     if (provider.isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (provider.transactions.isEmpty)
@@ -129,46 +178,44 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   }
 }
 
-class _TotalCard extends StatelessWidget {
-  const _TotalCard({
+class _StatMiniCard extends StatelessWidget {
+  const _StatMiniCard({
     required this.label,
     required this.value,
     required this.icon,
-    required this.color,
   });
+
   final String label;
-  final int value;
+  final String value;
   final IconData icon;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return SoftCard(
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Icon(icon, color: color),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            label.toUpperCase(),
-            style: const TextStyle(
-              color: Color(0xFF505466),
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2,
-            ),
-          ),
+          Icon(icon, color: Colors.white),
           const SizedBox(height: 10),
           Text(
-            formatRupiah(value),
-            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+            label,
+            style: const TextStyle(
+              color: Color(0xFFD9E7FF),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
@@ -238,6 +285,32 @@ class _TransactionTile extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InlineBanner extends StatelessWidget {
+  const _InlineBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF2F0),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFD7CF)),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFFB42318),
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

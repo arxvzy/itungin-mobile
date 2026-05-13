@@ -40,121 +40,159 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: SafeArea(
-        child: Column(
-          children: [
-            const AppHeader(),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                children: [
-                  const SizedBox(height: 22),
-                  Center(
-                    child: Container(
-                      width: 76,
-                      height: 76,
-                      decoration: BoxDecoration(
-                        color: appBlue,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: appBlue.withValues(alpha: 0.25),
-                            blurRadius: 20,
-                            offset: const Offset(0, 12),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFF6F8FC), Color(0xFFEFF4FF)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Column(
+            children: [
+              const AppHeader(),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
+                  itemCount:
+                      provider.messages.length +
+                      4 +
+                      (provider.isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Column(
+                        children: [
+                          Container(
+                            width: 76,
+                            height: 76,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF0B66FF), Color(0xFF20C4FF)],
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: appBlue.withValues(alpha: 0.24),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.smart_toy_rounded,
+                              color: Colors.white,
+                              size: 38,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'AI Financial Assistant',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Dapatkan analisis keuangan yang lebih cepat.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 15, color: mutedText),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      );
+                    }
+
+                    if (index == 1) {
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          _PromptChip(
+                            label: 'Analisis belanja',
+                            onTap: () => _send(
+                              'Tolong analisis pengeluaran saya bulan ini.',
+                            ),
+                          ),
+                          _PromptChip(
+                            label: 'Cara hemat',
+                            onTap: () => _send(
+                              'Bagaimana cara saya menabung lebih banyak?',
+                            ),
+                          ),
+                          _PromptChip(
+                            label: 'Tips investasi',
+                            onTap: () =>
+                                _send('Berikan tips investasi untuk pemula.'),
                           ),
                         ],
-                      ),
-                      child: const Icon(
-                        Icons.smart_toy_rounded,
-                        color: Colors.white,
-                        size: 38,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Center(
-                    child: Text(
-                      'AI Financial Assistant',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Center(
-                    child: Text(
-                      'How can I help your finances today?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, color: mutedText),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      _PromptChip(
-                        label: 'Analyze my spending',
-                        onTap: () => _send(
-                          'Tolong analisis pengeluaran saya bulan ini.',
+                      );
+                    }
+
+                    if (index == 2) {
+                      return const SizedBox(height: 18);
+                    }
+
+                    final messageIndex = index - 3;
+                    if (messageIndex < provider.messages.length) {
+                      return _MessageBubble(
+                        message: provider.messages[messageIndex],
+                      );
+                    }
+
+                    if (provider.isLoading &&
+                        messageIndex == provider.messages.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: CircularProgressIndicator(),
                         ),
-                      ),
-                      _PromptChip(
-                        label: 'How to save more?',
-                        onTap: () =>
-                            _send('Bagaimana cara saya menabung lebih banyak?'),
-                      ),
-                      _PromptChip(
-                        label: 'Investment tips',
-                        onTap: () =>
-                            _send('Berikan tips investasi untuk pemula.'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                  ...provider.messages.map(
-                    (message) => _MessageBubble(message: message),
-                  ),
-                  if (provider.isLoading)
-                    const Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                ],
+                      );
+                    }
+
+                    if (provider.errorMessage != null) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: _ChatBanner(message: provider.errorMessage!),
+                      );
+                    }
+
+                    return const SizedBox.shrink();
+                  },
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(28, 10, 28, 18),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Type a message...',
-                        prefixIcon: const Icon(Icons.attach_file_rounded),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 18),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: 'Tulis pesan ke asisten AI...',
+                          prefixIcon: Icon(Icons.chat_bubble_outline_rounded),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  FloatingActionButton(
-                    backgroundColor: appBlue,
-                    foregroundColor: Colors.white,
-                    onPressed: provider.isLoading ? null : _send,
-                    child: const Icon(Icons.send_rounded),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: FloatingActionButton(
+                        backgroundColor: appBlue,
+                        foregroundColor: Colors.white,
+                        onPressed: provider.isLoading ? null : _send,
+                        child: const Icon(Icons.send_rounded),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -188,9 +226,14 @@ class _MessageBubble extends StatelessWidget {
       child: Container(
         width: MediaQuery.sizeOf(context).width * 0.72,
         margin: const EdgeInsets.only(bottom: 18),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: user ? appBlue : Colors.white,
+          gradient: user
+              ? const LinearGradient(
+                  colors: [Color(0xFF0B66FF), Color(0xFF0F8DFF)],
+                )
+              : null,
+          color: user ? null : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: user
               ? null
@@ -209,7 +252,7 @@ class _MessageBubble extends StatelessWidget {
               message.message,
               style: TextStyle(
                 color: user ? Colors.white : textDark,
-                fontSize: 18,
+                fontSize: 16,
                 height: 1.35,
               ),
             ),
@@ -226,6 +269,32 @@ class _MessageBubble extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatBanner extends StatelessWidget {
+  const _ChatBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF2F0),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFD7CF)),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFFB42318),
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

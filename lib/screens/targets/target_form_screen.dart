@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../models/target_model.dart';
 import '../../providers/target_provider.dart';
+import '../../widgets/app_shell.dart';
 
 class TargetFormScreen extends StatefulWidget {
   const TargetFormScreen({super.key, this.target});
@@ -18,6 +19,7 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
   final _amount = TextEditingController();
   final _category = TextEditingController();
   DateTime _date = DateTime.now().add(const Duration(days: 90));
+  String? _localError;
 
   @override
   void initState() {
@@ -32,10 +34,20 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
   }
 
   Future<void> _save() async {
+    final amount =
+        int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    if (_name.text.trim().isEmpty ||
+        _category.text.trim().isEmpty ||
+        amount <= 0) {
+      setState(() {
+        _localError = 'Nama target, jumlah, dan kategori wajib diisi.';
+      });
+      return;
+    }
     final ok = await context.read<TargetProvider>().saveTarget(
       CreateTargetRequest(
         namaTarget: _name.text,
-        targetJumlah: int.tryParse(_amount.text.replaceAll('.', '')) ?? 0,
+        targetJumlah: amount,
         tanggalTarget: apiDate(_date),
         kategori: _category.text,
       ),
@@ -72,6 +84,7 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<TargetProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.target == null ? 'Tambah Target' : 'Edit Target'),
@@ -84,38 +97,107 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         children: [
-          TextField(
-            controller: _name,
-            decoration: const InputDecoration(labelText: 'Nama Target'),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF1E7CF2), Color(0xFF2F9CFF)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Form target',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  widget.target == null
+                      ? 'Atur tujuan tabungan baru untuk dicapai.'
+                      : 'Perbarui target tabungan yang sedang berjalan.',
+                  style: const TextStyle(color: Color(0xFFD9E7FF)),
+                ),
+              ],
+            ),
           ),
-          TextField(
-            controller: _amount,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Target Jumlah'),
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: _localError == null && provider.errorMessage == null
+                ? const SizedBox.shrink()
+                : Container(
+                    key: ValueKey(_localError ?? provider.errorMessage),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF2F0),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFFFD7CF)),
+                    ),
+                    child: Text(
+                      _localError ?? provider.errorMessage ?? '',
+                      style: const TextStyle(
+                        color: Color(0xFFB42318),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
           ),
-          TextField(
-            controller: _category,
-            decoration: const InputDecoration(labelText: 'Kategori'),
+          if (_localError != null || provider.errorMessage != null)
+            const SizedBox(height: 14),
+          SoftCard(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _name,
+                  decoration: const InputDecoration(labelText: 'Nama Target'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _amount,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Target Jumlah'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _category,
+                  decoration: const InputDecoration(labelText: 'Kategori'),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Tanggal Target'),
+                  subtitle: Text(apiDate(_date)),
+                  trailing: const Icon(Icons.calendar_today_outlined),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2040),
+                      initialDate: _date,
+                    );
+                    if (picked != null) setState(() => _date = picked);
+                  },
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _save,
+                    child: Text(widget.target == null ? 'Simpan' : 'Perbarui'),
+                  ),
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Tanggal Target'),
-            subtitle: Text(apiDate(_date)),
-            trailing: const Icon(Icons.calendar_today_outlined),
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                firstDate: DateTime.now(),
-                lastDate: DateTime(2040),
-                initialDate: _date,
-              );
-              if (picked != null) setState(() => _date = picked);
-            },
-          ),
-          const SizedBox(height: 24),
-          FilledButton(onPressed: _save, child: const Text('Simpan')),
         ],
       ),
     );

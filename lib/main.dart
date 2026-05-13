@@ -3,8 +3,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'core/constants/api_constants.dart';
 import 'core/network/dio_client.dart';
 import 'core/storage/secure_storage_service.dart';
+import 'providers/api_diagnostics_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/dashboard_provider.dart';
@@ -21,11 +23,13 @@ Future<void> main() async {
   await initializeDateFormatting('id_ID');
 
   final storage = SecureStorageService();
-  final dioClient = DioClient(storage);
+  final diagnostics = ApiDiagnosticsProvider(ApiConstants.baseUrl);
+  final dioClient = DioClient(storage, diagnostics);
 
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: diagnostics),
         ChangeNotifierProvider(
           create: (_) =>
               AuthProvider(AuthService(dioClient), storage)..checkSession(),

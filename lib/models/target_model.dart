@@ -1,3 +1,5 @@
+import '../core/utils/json_parsers.dart';
+
 class TargetModel {
   const TargetModel({
     required this.id,
@@ -29,11 +31,11 @@ class TargetModel {
   }
 
   factory TargetModel.fromJson(Map<String, dynamic> json) => TargetModel(
-    id: (json['id'] as num?)?.toInt() ?? 0,
-    userId: (json['user_id'] as num?)?.toInt() ?? 0,
+    id: parseIntValue(json['id']),
+    userId: parseIntValue(json['user_id']),
     namaTarget: json['nama_target']?.toString() ?? '',
-    targetJumlah: (json['target_jumlah'] as num?)?.toInt() ?? 0,
-    jumlahTerkumpul: (json['jumlah_terkumpul'] as num?)?.toInt() ?? 0,
+    targetJumlah: parseIntValue(json['target_jumlah']),
+    jumlahTerkumpul: parseIntValue(json['jumlah_terkumpul']),
     tanggalTarget: json['tanggal_target']?.toString() ?? '',
     status: json['status']?.toString() ?? 'aktif',
     kategori: json['kategori']?.toString() ?? '',
@@ -84,7 +86,7 @@ class TargetListResponse {
                 )
                 .toList()
           : const [],
-      saldo: (data['saldo'] as num?)?.toInt() ?? 0,
+      saldo: parseIntValue(data['saldo']),
     );
   }
 }

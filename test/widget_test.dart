@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myapp/app.dart';
+import 'package:myapp/core/constants/api_constants.dart';
 import 'package:myapp/core/network/dio_client.dart';
 import 'package:myapp/core/storage/secure_storage_service.dart';
+import 'package:myapp/providers/api_diagnostics_provider.dart';
 import 'package:myapp/providers/auth_provider.dart';
 import 'package:myapp/providers/chat_provider.dart';
 import 'package:myapp/providers/dashboard_provider.dart';
@@ -18,11 +20,13 @@ import 'package:provider/provider.dart';
 void main() {
   testWidgets('shows Itungin login screen', (WidgetTester tester) async {
     final storage = SecureStorageService();
-    final dioClient = DioClient(storage);
+    final diagnostics = ApiDiagnosticsProvider(ApiConstants.baseUrl);
+    final dioClient = DioClient(storage, diagnostics);
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider.value(value: diagnostics),
           ChangeNotifierProvider(
             create: (_) => AuthProvider(AuthService(dioClient), storage),
           ),
@@ -43,8 +47,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Itungin'), findsOneWidget);
-    expect(find.text('Welcome Back'), findsOneWidget);
+    expect(find.text('Itungin'), findsWidgets);
+    expect(find.text('Kelola keuangan pribadi tanpa ribet.'), findsOneWidget);
     expect(find.byIcon(Icons.lock_outline), findsOneWidget);
   });
 }

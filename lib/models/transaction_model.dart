@@ -1,3 +1,5 @@
+import '../core/utils/json_parsers.dart';
+
 class TransactionModel {
   const TransactionModel({
     required this.id,
@@ -25,10 +27,10 @@ class TransactionModel {
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) =>
       TransactionModel(
-        id: (json['id'] as num?)?.toInt() ?? 0,
-        userId: (json['user_id'] as num?)?.toInt() ?? 0,
+        id: parseIntValue(json['id']),
+        userId: parseIntValue(json['user_id']),
         tipeTransaksi: json['tipe_transaksi']?.toString() ?? 'pengeluaran',
-        jumlah: (json['jumlah'] as num?)?.toInt() ?? 0,
+        jumlah: parseIntValue(json['jumlah']),
         kategori: json['kategori']?.toString() ?? '',
         deskripsi: json['deskripsi']?.toString() ?? '',
         tanggal: json['tanggal']?.toString() ?? '',
@@ -89,9 +91,9 @@ class TransactionListResponse {
                 )
                 .toList()
           : const [],
-      saldo: (data['saldo'] as num?)?.toInt() ?? 0,
-      totalPemasukan: (data['total_pemasukan'] as num?)?.toInt() ?? 0,
-      totalPengeluaran: (data['total_pengeluaran'] as num?)?.toInt() ?? 0,
+      saldo: parseIntValue(data['saldo']),
+      totalPemasukan: parseIntValue(data['total_pemasukan']),
+      totalPengeluaran: parseIntValue(data['total_pengeluaran']),
     );
   }
 }

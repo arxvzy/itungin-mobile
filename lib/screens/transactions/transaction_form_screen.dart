@@ -20,6 +20,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   final _description = TextEditingController();
   String _type = 'pengeluaran';
   DateTime _date = DateTime.now();
+  String? _localError;
 
   @override
   void initState() {
@@ -35,9 +36,20 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   }
 
   Future<void> _save() async {
+    final amount =
+        int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    if (_type.isEmpty ||
+        _category.text.trim().isEmpty ||
+        _description.text.trim().isEmpty ||
+        amount <= 0) {
+      setState(() {
+        _localError = 'Lengkapi tipe, jumlah, kategori, dan deskripsi.';
+      });
+      return;
+    }
     final request = CreateTransactionRequest(
       tipeTransaksi: _type,
-      jumlah: int.tryParse(_amount.text.replaceAll('.', '')) ?? 0,
+      jumlah: amount,
       kategori: _category.text,
       deskripsi: _description.text,
       tanggal: apiDate(_date),
@@ -51,6 +63,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (ok) {
       Navigator.pop(context);
     } else if (provider.errorMessage != null) {
+      setState(() => _localError = provider.errorMessage);
       showSnack(context, provider.errorMessage!);
     }
   }
@@ -82,6 +95,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<TransactionProvider>();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -96,51 +110,128 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(20),
         children: [
-          DropdownButtonFormField(
-            initialValue: _type,
-            items: const [
-              DropdownMenuItem(value: 'pemasukan', child: Text('Pemasukan')),
-              DropdownMenuItem(
-                value: 'pengeluaran',
-                child: Text('Pengeluaran'),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0B66FF), Color(0xFF0F8DFF)],
               ),
-            ],
-            onChanged: (value) => setState(() => _type = value!),
-            decoration: const InputDecoration(labelText: 'Tipe Transaksi'),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Form transaksi',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  widget.transaction == null
+                      ? 'Tambah pemasukan atau pengeluaran baru.'
+                      : 'Perbarui detail transaksi yang sudah ada.',
+                  style: const TextStyle(color: Color(0xFFD9E7FF)),
+                ),
+              ],
+            ),
           ),
-          TextField(
-            controller: _amount,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Jumlah'),
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: _localError == null && provider.errorMessage == null
+                ? const SizedBox.shrink()
+                : Container(
+                    key: ValueKey(_localError ?? provider.errorMessage),
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF2F0),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFFFD7CF)),
+                    ),
+                    child: Text(
+                      _localError ?? provider.errorMessage ?? '',
+                      style: const TextStyle(
+                        color: Color(0xFFB42318),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
           ),
-          TextField(
-            controller: _category,
-            decoration: const InputDecoration(labelText: 'Kategori'),
+          if (_localError != null || provider.errorMessage != null)
+            const SizedBox(height: 14),
+          SoftCard(
+            child: Column(
+              children: [
+                DropdownButtonFormField(
+                  initialValue: _type,
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'pemasukan',
+                      child: Text('Pemasukan'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'pengeluaran',
+                      child: Text('Pengeluaran'),
+                    ),
+                  ],
+                  onChanged: (value) => setState(() => _type = value!),
+                  decoration: const InputDecoration(
+                    labelText: 'Tipe transaksi',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _amount,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Jumlah'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _category,
+                  decoration: const InputDecoration(labelText: 'Kategori'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _description,
+                  maxLines: 3,
+                  decoration: const InputDecoration(labelText: 'Deskripsi'),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Tanggal'),
+                  subtitle: Text(apiDate(_date)),
+                  trailing: const Icon(Icons.calendar_today_outlined),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2035),
+                      initialDate: _date,
+                    );
+                    if (picked != null) setState(() => _date = picked);
+                  },
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _save,
+                    child: Text(
+                      widget.transaction == null ? 'Simpan' : 'Perbarui',
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          TextField(
-            controller: _description,
-            decoration: const InputDecoration(labelText: 'Deskripsi'),
-          ),
-          const SizedBox(height: 14),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Tanggal'),
-            subtitle: Text(apiDate(_date)),
-            trailing: const Icon(Icons.calendar_today_outlined),
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                firstDate: DateTime(2020),
-                lastDate: DateTime(2035),
-                initialDate: _date,
-              );
-              if (picked != null) setState(() => _date = picked);
-            },
-          ),
-          const SizedBox(height: 24),
-          FilledButton(onPressed: _save, child: const Text('Simpan')),
         ],
       ),
     );

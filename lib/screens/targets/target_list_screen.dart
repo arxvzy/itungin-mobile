@@ -38,80 +38,104 @@ class _TargetListScreenState extends State<TargetListScreen> {
             children: [
               const AppHeader(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GradientSummaryCard(
-                      label: 'Total Tabungan Target',
-                      value: formatRupiah(provider.totalTarget),
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _TargetStat(
-                                label: 'Selesai',
-                                value: provider.completedCount,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _TargetStat(
-                                label: 'Berjalan',
-                                value: provider.activeCount,
-                              ),
-                            ),
-                          ],
+                    if (provider.errorMessage != null) ...[
+                      _InlineBanner(message: provider.errorMessage!),
+                      const SizedBox(height: 14),
+                    ],
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF1E7CF2), Color(0xFF2F9CFF)],
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 34),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Target tabungan',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Pantau target, deadline, dan progress dana Anda.',
+                            style: TextStyle(
+                              color: Color(0xFFD9E7FF),
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            'Saldo tersedia',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatRupiah(provider.saldo),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          Row(
                             children: [
-                              Text(
-                                'Target Ku',
-                                style: TextStyle(
-                                  fontSize: 36,
-                                  fontWeight: FontWeight.w900,
+                              Expanded(
+                                child: _TargetStat(
+                                  label: 'Selesai',
+                                  value: provider.completedCount,
                                 ),
                               ),
-                              SizedBox(height: 6),
-                              Text(
-                                'Kelola impian finansial Anda',
-                                style: TextStyle(
-                                  color: mutedText,
-                                  fontSize: 18,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _TargetStat(
+                                  label: 'Berjalan',
+                                  value: provider.activeCount,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        FilledButton.icon(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const TargetFormScreen(),
-                            ),
-                          ),
-                          icon: const Icon(Icons.add),
-                          label: const Text('Tambah\nTarget'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: appBlue,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 18,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 18),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: FilledButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const TargetFormScreen(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Tambah target'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: appBlue,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 16,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
                     if (provider.isLoading)
                       const Center(child: CircularProgressIndicator())
                     else if (provider.targets.isEmpty)
@@ -166,6 +190,32 @@ class _TargetStat extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _InlineBanner extends StatelessWidget {
+  const _InlineBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF2F0),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFD7CF)),
+      ),
+      child: Text(
+        message,
+        style: const TextStyle(
+          color: Color(0xFFB42318),
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
