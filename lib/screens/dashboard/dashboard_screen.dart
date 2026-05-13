@@ -5,6 +5,9 @@ import 'package:provider/provider.dart';
 import '../../core/utils/currency_formatter.dart';
 import '../../providers/dashboard_provider.dart';
 import '../../widgets/app_shell.dart';
+import '../chat/chat_screen.dart';
+import '../targets/target_list_screen.dart';
+import '../transactions/transaction_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -36,7 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               const AppHeader(),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: provider.isLoading && dashboard == null
                     ? const SizedBox(
                         height: 420,
@@ -45,119 +48,115 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GradientSummaryCard(
-                            label: 'Total Saldo',
-                            value: formatRupiah(dashboard?.totalWealth ?? 0),
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(22),
-                                ),
-                                child: const Text(
-                                  '+12.5% than last month',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              _Shortcut(
-                                icon: Icons.send_rounded,
-                                label: 'Kirim',
-                              ),
-                              _Shortcut(
-                                icon: Icons.add_circle_outline_rounded,
-                                label: 'Top Up',
-                              ),
-                              _Shortcut(
-                                icon: Icons.account_balance_wallet_outlined,
-                                label: 'Tagihan',
-                              ),
-                              _Shortcut(
-                                icon: Icons.more_horiz_rounded,
-                                label: 'Lainnya',
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 34),
-                          Row(
-                            children: const [
-                              Expanded(
-                                child: Text(
-                                  'Spending Curve',
-                                  style: TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'Last 7 Days',
-                                style: TextStyle(
-                                  color: appBlue,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          SoftCard(
-                            child: SizedBox(
-                              height: 220,
-                              child: _DashboardChart(provider: provider),
+                          if (provider.errorMessage != null) ...[
+                            _InlineBanner(
+                              message: provider.errorMessage!,
+                              icon: Icons.info_outline_rounded,
+                              color: const Color(0xFFFFF2F0),
                             ),
+                            const SizedBox(height: 16),
+                          ],
+                          _HeroSummary(
+                            totalWealth: dashboard?.totalWealth ?? 0,
+                            monthlyIncome: dashboard?.monthlyIncome ?? 0,
+                            monthlyExpense: dashboard?.monthlyExpense ?? 0,
                           ),
-                          const SizedBox(height: 34),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _QuickAction(
+                                  icon: Icons.add_circle_outline_rounded,
+                                  label: 'Transaksi',
+                                  onTap: (_) => const TransactionListScreen(),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _QuickAction(
+                                  icon: Icons.track_changes_rounded,
+                                  label: 'Target',
+                                  onTap: (_) => const TargetListScreen(),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _QuickAction(
+                                  icon: Icons.smart_toy_rounded,
+                                  label: 'Chat AI',
+                                  onTap: (_) => const ChatScreen(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 28),
                           const Text(
-                            'Recent Activities',
+                            'Tren bulanan',
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: 24,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
+                          SoftCard(
+                            child: SizedBox(
+                              height: 260,
+                              child: _DashboardChart(provider: provider),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          const Text(
+                            'Transaksi terbaru',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
                           if ((dashboard?.recentTransactions ?? []).isEmpty)
                             const SoftCard(
                               child: Center(
-                                child: Text('Belum ada transaksi.'),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 20),
+                                  child: Text('Belum ada transaksi.'),
+                                ),
                               ),
                             )
                           else
                             ...dashboard!.recentTransactions.map(
                               (tx) => Padding(
-                                padding: const EdgeInsets.only(bottom: 14),
+                                padding: const EdgeInsets.only(bottom: 12),
                                 child: SoftCard(
-                                  padding: const EdgeInsets.all(18),
+                                  padding: const EdgeInsets.all(16),
                                   child: Row(
                                     children: [
                                       Container(
-                                        width: 56,
-                                        height: 56,
+                                        width: 52,
+                                        height: 52,
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFECEFFE),
+                                          gradient: LinearGradient(
+                                            colors: tx.isIncome
+                                                ? [
+                                                    const Color(0xFF0B66FF),
+                                                    const Color(0xFF69A4FF),
+                                                  ]
+                                                : [
+                                                    const Color(0xFFFF7A59),
+                                                    const Color(0xFFFFB199),
+                                                  ],
+                                          ),
                                           borderRadius: BorderRadius.circular(
-                                            18,
+                                            16,
                                           ),
                                         ),
                                         child: Icon(
                                           tx.isIncome
-                                              ? Icons.payments_outlined
-                                              : Icons.restaurant_rounded,
-                                          color: appBlue,
+                                              ? Icons.payments_rounded
+                                              : Icons.shopping_bag_rounded,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                      const SizedBox(width: 16),
+                                      const SizedBox(width: 14),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -166,25 +165,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             Text(
                                               tx.kategori,
                                               style: const TextStyle(
-                                                fontSize: 18,
+                                                fontSize: 17,
                                                 fontWeight: FontWeight.w800,
                                               ),
                                             ),
+                                            const SizedBox(height: 4),
                                             Text(
                                               tx.deskripsi,
                                               style: const TextStyle(
                                                 color: mutedText,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
                                         ),
                                       ),
+                                      const SizedBox(width: 12),
                                       Text(
                                         '${tx.isIncome ? '+' : '-'} ${formatRupiah(tx.jumlah)}',
                                         style: TextStyle(
                                           color: tx.isIncome
-                                              ? appBlue
-                                              : const Color(0xFF9A2208),
+                                              ? const Color(0xFF0B66FF)
+                                              : const Color(0xFFB42318),
                                           fontWeight: FontWeight.w900,
                                         ),
                                       ),
@@ -204,34 +207,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 }
 
-class _Shortcut extends StatelessWidget {
-  const _Shortcut({required this.icon, required this.label});
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    this.onTap,
+  });
   final IconData icon;
   final String label;
+  final WidgetBuilder? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          width: 62,
-          height: 62,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap == null
+            ? null
+            : () => Navigator.of(context).push(slideRoute(onTap!(context))),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFE6E7E9),
-            borderRadius: BorderRadius.circular(18),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          child: Icon(icon, color: appBlue, size: 30),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          label.toUpperCase(),
-          style: const TextStyle(
-            fontWeight: FontWeight.w800,
-            color: Color(0xFF666A73),
-            fontSize: 12,
+          child: Column(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF1FF),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: appBlue),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  color: textDark,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -242,36 +273,231 @@ class _DashboardChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final actual = provider.dashboard?.chart.actual;
-    final values = actual == null || actual.isEmpty
-        ? [3.0, 5.0, 6.0, 2.2, 7.0, 3.5, 5.0]
-        : actual;
-    return BarChart(
-      BarChartData(
+    final chart = provider.dashboard?.chart;
+    final actual = chart?.actual.isNotEmpty == true
+        ? chart!.actual
+        : [4.3, 5.1, 5.8, 5.4, 6.0, 6.4, 6.8];
+    final target = chart?.target.isNotEmpty == true
+        ? chart!.target
+        : List<double>.filled(actual.length, 6.5);
+    final spotsActual = List.generate(
+      actual.length,
+      (index) => FlSpot(index.toDouble(), actual[index]),
+    );
+    final spotsTarget = List.generate(
+      target.length,
+      (index) => FlSpot(index.toDouble(), target[index]),
+    );
+
+    return LineChart(
+      LineChartData(
+        minY: 0,
+        maxY: [...actual, ...target].reduce((a, b) => a > b ? a : b) + 1,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: 1,
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: const Color(0xFFE9EDF4), strokeWidth: 1),
+        ),
         borderData: FlBorderData(show: false),
-        gridData: const FlGridData(show: false),
         titlesData: const FlTitlesData(
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        barGroups: List.generate(
-          values.length,
-          (index) => BarChartGroupData(
-            x: index,
-            barRods: [
-              BarChartRodData(
-                toY: values[index],
-                width: 28,
-                color: index == 2 ? appBlue : const Color(0xFF91A7FF),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(8),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spotsActual,
+            isCurved: true,
+            color: appBlue,
+            barWidth: 4,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                colors: [
+                  appBlue.withValues(alpha: 0.22),
+                  appBlue.withValues(alpha: 0.02),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          LineChartBarData(
+            spots: spotsTarget,
+            isCurved: true,
+            color: const Color(0xFF21B66F),
+            barWidth: 3,
+            dashArray: [8, 6],
+            dotData: const FlDotData(show: false),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeroSummary extends StatelessWidget {
+  const _HeroSummary({
+    required this.totalWealth,
+    required this.monthlyIncome,
+    required this.monthlyExpense,
+  });
+
+  final int totalWealth;
+  final int monthlyIncome;
+  final int monthlyExpense;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0B66FF), Color(0xFF0F8DFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: appBlue.withValues(alpha: 0.25),
+            blurRadius: 24,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Total saldo',
+            style: TextStyle(
+              color: Color(0xFFD9E7FF),
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            formatRupiah(totalWealth),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: _SummaryChip(
+                  label: 'Pemasukan',
+                  value: formatRupiah(monthlyIncome),
+                  icon: Icons.trending_up_rounded,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _SummaryChip(
+                  label: 'Pengeluaran',
+                  value: formatRupiah(monthlyExpense),
+                  icon: Icons.trending_down_rounded,
                 ),
               ),
             ],
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  const _SummaryChip({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: Colors.white),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Color(0xFFD9E7FF),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InlineBanner extends StatelessWidget {
+  const _InlineBanner({
+    required this.message,
+    required this.icon,
+    required this.color,
+  });
+
+  final String message;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFFFD7CF)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFFB42318)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Color(0xFF7A271A),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

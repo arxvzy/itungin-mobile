@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/auth_provider.dart';
 import '../screens/chat/chat_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/targets/target_list_screen.dart';
@@ -16,28 +18,92 @@ class AppHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(28, 18, 28, 22),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: const Color(0xFFE8ECF5),
-            child: Icon(Icons.person, color: Colors.blueGrey.shade700),
-          ),
-          const SizedBox(width: 16),
-          const Text(
-            'Itungin',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-              color: appBlue,
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF0B66FF), Color(0xFF20C4FF)],
+              ),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: const Icon(
+              Icons.account_balance_wallet_rounded,
+              color: Colors.white,
             ),
           ),
+          const SizedBox(width: 14),
+          const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Itungin',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: textDark,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                'Personal finance companion',
+                style: TextStyle(color: mutedText, fontSize: 12),
+              ),
+            ],
+          ),
           const Spacer(),
-          const Icon(
-            Icons.notifications_none_rounded,
-            color: appBlue,
-            size: 32,
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () async {
+                final auth = context.read<AuthProvider>();
+                final navigator = Navigator.of(context);
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogContext) {
+                    return AlertDialog(
+                      title: const Text('Logout'),
+                      content: const Text('Yakin ingin keluar dari akun ini?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(false),
+                          child: const Text('Batal'),
+                        ),
+                        FilledButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(true),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFB42318),
+                          ),
+                          child: const Text('Logout'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+                if (confirmed != true) return;
+                await auth.logout();
+                navigator.popUntil((route) => route.isFirst);
+              },
+              icon: const Icon(Icons.logout_rounded, color: appBlue),
+              tooltip: 'Logout',
+            ),
           ),
         ],
       ),
@@ -57,12 +123,12 @@ class SoftCard extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.045),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -144,61 +210,49 @@ class AppBottomNav extends StatelessWidget {
       (Icons.track_changes_rounded, 'Target Ku', const TargetListScreen()),
       (Icons.smart_toy_rounded, 'AI Assistant', const ChatScreen()),
     ];
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: List.generate(items.length, (index) {
-          final selected = index == currentIndex;
-          final item = items[index];
-          return Expanded(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(22),
-              onTap: selected
-                  ? null
-                  : () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => item.$3),
-                    ),
-              child: Container(
-                height: 72,
-                decoration: BoxDecoration(
-                  color: selected
-                      ? const Color(0xFFEAF1FF)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      item.$1,
-                      color: selected ? appBlue : const Color(0xFF9AA8BC),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      item.$2.toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: selected ? appBlue : const Color(0xFF9AA8BC),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }),
-      ),
+    return NavigationBar(
+      selectedIndex: currentIndex,
+      height: 74,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+      backgroundColor: Colors.white,
+      indicatorColor: const Color(0xFFEAF1FF),
+      onDestinationSelected: (index) {
+        if (index == currentIndex) return;
+        Navigator.of(context).pushReplacement(slideRoute(items[index].$3));
+      },
+      destinations: [
+        NavigationDestination(icon: Icon(items[0].$1), label: items[0].$2),
+        NavigationDestination(icon: Icon(items[1].$1), label: items[1].$2),
+        NavigationDestination(icon: Icon(items[2].$1), label: items[2].$2),
+        NavigationDestination(icon: Icon(items[3].$1), label: items[3].$2),
+      ],
     );
   }
 }
 
+Route<T> slideRoute<T>(Widget page) {
+  return PageRouteBuilder<T>(
+    pageBuilder: (_, animation, secondaryAnimation) => page,
+    transitionsBuilder: (_, animation, secondaryAnimation, child) {
+      final tween = Tween<Offset>(
+        begin: const Offset(1, 0),
+        end: Offset.zero,
+      ).chain(CurveTween(curve: Curves.easeOutCubic));
+      return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+      );
+    },
+  );
+}
+
 void showSnack(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+  );
 }
