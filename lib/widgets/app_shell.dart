@@ -30,9 +30,12 @@ class AppHeader extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(
-              Icons.account_balance_wallet_rounded,
-              color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(9),
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           const SizedBox(width: 14),
