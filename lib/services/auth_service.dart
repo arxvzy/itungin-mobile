@@ -53,9 +53,10 @@ class AuthService {
       final data = response.data is Map
           ? Map<String, dynamic>.from(response.data as Map)
           : {};
-      final userJson = data['user'] ?? data['data'] ?? data;
       return UserModel.fromJson(
-        userJson is Map ? Map<String, dynamic>.from(userJson) : const {},
+        Map<String, dynamic>.from(
+          (data['user'] ?? data['data'] ?? data) as Map,
+        ),
       );
     } catch (error) {
       throw _client.normalizeError(error);

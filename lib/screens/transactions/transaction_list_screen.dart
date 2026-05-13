@@ -30,9 +30,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<TransactionProvider>();
     return Scaffold(
-      bottomNavigationBar: widget.showBottomNav
-          ? const AppBottomNav(currentIndex: 1)
-          : null,
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 1) : null,
       floatingActionButton: FloatingActionButton(
         backgroundColor: appBlue,
         foregroundColor: Colors.white,
@@ -265,20 +264,14 @@ class _TransactionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      transaction.kategori.isNotEmpty
-                          ? transaction.kategori
-                          : 'Tanpa kategori',
+                      transaction.kategori,
                       style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                     Text(
-                      [
-                        displayDate(transaction.tanggal),
-                        if (transaction.deskripsi.isNotEmpty)
-                          transaction.deskripsi,
-                      ].join(' • '),
+                      '${displayDate(transaction.tanggal)} • ${transaction.deskripsi}',
                       style: const TextStyle(color: mutedText),
                     ),
                   ],

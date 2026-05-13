@@ -30,9 +30,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final provider = context.watch<DashboardProvider>();
     final dashboard = provider.dashboard;
     return Scaffold(
-      bottomNavigationBar: widget.showBottomNav
-          ? const AppBottomNav(currentIndex: 0)
-          : null,
+      bottomNavigationBar:
+          widget.showBottomNav ? const AppBottomNav(currentIndex: 0) : null,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: provider.fetchDashboard,
@@ -164,9 +163,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              tx.kategori.isNotEmpty
-                                                  ? tx.kategori
-                                                  : 'Tanpa kategori',
+                                              tx.kategori,
                                               style: const TextStyle(
                                                 fontSize: 17,
                                                 fontWeight: FontWeight.w800,
@@ -174,9 +171,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
-                                              tx.deskripsi.isNotEmpty
-                                                  ? tx.deskripsi
-                                                  : 'Tidak ada deskripsi',
+                                              tx.deskripsi,
                                               style: const TextStyle(
                                                 color: mutedText,
                                               ),
