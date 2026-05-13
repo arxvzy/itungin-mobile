@@ -38,21 +38,18 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   Future<void> _save() async {
     final amount =
         int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    if (_type.isEmpty ||
-        _category.text.trim().isEmpty ||
-        _description.text.trim().isEmpty ||
-        amount <= 0) {
+    if (_type.isEmpty || amount <= 0) {
       setState(() {
-        _localError = 'Lengkapi tipe, jumlah, kategori, dan deskripsi.';
+        _localError = 'Lengkapi tipe dan jumlah transaksi.';
       });
       return;
     }
     final request = CreateTransactionRequest(
       tipeTransaksi: _type,
       jumlah: amount,
-      kategori: _category.text,
-      deskripsi: _description.text,
       tanggal: apiDate(_date),
+      kategori: _category.text.trim().isEmpty ? null : _category.text,
+      deskripsi: _description.text.trim().isEmpty ? null : _description.text,
     );
     final provider = context.read<TransactionProvider>();
     final ok = await provider.saveTransaction(
@@ -195,13 +192,17 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _category,
-                  decoration: const InputDecoration(labelText: 'Kategori'),
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori (opsional)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _description,
                   maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Deskripsi'),
+                  decoration: const InputDecoration(
+                    labelText: 'Deskripsi (opsional)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ListTile(

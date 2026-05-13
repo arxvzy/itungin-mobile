@@ -1,4 +1,5 @@
 import '../core/utils/json_parsers.dart';
+import 'user_model.dart';
 
 class TargetModel {
   const TargetModel({
@@ -49,33 +50,49 @@ class CreateTargetRequest {
     required this.namaTarget,
     required this.targetJumlah,
     required this.tanggalTarget,
-    required this.kategori,
+    this.kategori,
   });
 
   final String namaTarget;
   final int targetJumlah;
   final String tanggalTarget;
-  final String kategori;
+  final String? kategori;
 
-  Map<String, dynamic> toJson() => {
-    'nama_target': namaTarget,
-    'target_jumlah': targetJumlah,
-    'tanggal_target': tanggalTarget,
-    'kategori': kategori,
-  };
+  Map<String, dynamic> toJson() {
+    final payload = <String, dynamic>{
+      'nama_target': namaTarget,
+      'target_jumlah': targetJumlah,
+      'tanggal_target': tanggalTarget,
+    };
+    final kategoriValue = kategori?.trim();
+    if (kategoriValue != null && kategoriValue.isNotEmpty) {
+      payload['kategori'] = kategoriValue;
+    }
+    return payload;
+  }
 }
 
 class TargetListResponse {
-  const TargetListResponse({required this.targets, required this.saldo});
+  const TargetListResponse({
+    required this.targets,
+    required this.saldo,
+    this.user,
+  });
 
   final List<TargetModel> targets;
   final int saldo;
+  final UserModel? user;
 
   factory TargetListResponse.fromJson(Map<String, dynamic> json) {
     final data = json['data'] is Map
         ? Map<String, dynamic>.from(json['data'] as Map)
         : json;
     final list = data['targets'] ?? data['data'] ?? [];
+    final userJson = data['user'];
+    final user = userJson is Map
+        ? UserModel.fromJson(Map<String, dynamic>.from(userJson))
+        : null;
+    final saldo = user?.saldo ?? parseIntValue(data['saldo']);
     return TargetListResponse(
       targets: list is List
           ? list
@@ -86,7 +103,8 @@ class TargetListResponse {
                 )
                 .toList()
           : const [],
-      saldo: parseIntValue(data['saldo']),
+      saldo: saldo,
+      user: user,
     );
   }
 }

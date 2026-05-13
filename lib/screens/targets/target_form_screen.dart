@@ -36,11 +36,9 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
   Future<void> _save() async {
     final amount =
         int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-    if (_name.text.trim().isEmpty ||
-        _category.text.trim().isEmpty ||
-        amount <= 0) {
+    if (_name.text.trim().isEmpty || amount <= 0) {
       setState(() {
-        _localError = 'Nama target, jumlah, dan kategori wajib diisi.';
+        _localError = 'Nama target dan jumlah wajib diisi.';
       });
       return;
     }
@@ -49,7 +47,7 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
         namaTarget: _name.text,
         targetJumlah: amount,
         tanggalTarget: apiDate(_date),
-        kategori: _category.text,
+        kategori: _category.text.trim().isEmpty ? null : _category.text,
       ),
       id: widget.target?.id,
     );
@@ -169,7 +167,9 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _category,
-                  decoration: const InputDecoration(labelText: 'Kategori'),
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori (opsional)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ListTile(

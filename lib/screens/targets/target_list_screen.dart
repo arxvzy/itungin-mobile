@@ -31,8 +31,9 @@ class _TargetListScreenState extends State<TargetListScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<TargetProvider>();
     return Scaffold(
-      bottomNavigationBar:
-          widget.showBottomNav ? const AppBottomNav(currentIndex: 2) : null,
+      bottomNavigationBar: widget.showBottomNav
+          ? const AppBottomNav(currentIndex: 2)
+          : null,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: provider.fetchTargets,
@@ -265,7 +266,10 @@ class _TargetTile extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '${target.kategori} • ${displayDate(target.tanggalTarget)}',
+                          [
+                            if (target.kategori.isNotEmpty) target.kategori,
+                            displayDate(target.tanggalTarget),
+                          ].join(' • '),
                           style: const TextStyle(color: mutedText),
                         ),
                       ],

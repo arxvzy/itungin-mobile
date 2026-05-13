@@ -43,24 +43,34 @@ class CreateTransactionRequest {
   const CreateTransactionRequest({
     required this.tipeTransaksi,
     required this.jumlah,
-    required this.kategori,
-    required this.deskripsi,
     required this.tanggal,
+    this.kategori,
+    this.deskripsi,
   });
 
   final String tipeTransaksi;
   final int jumlah;
-  final String kategori;
-  final String deskripsi;
   final String tanggal;
+  final String? kategori;
+  final String? deskripsi;
 
-  Map<String, dynamic> toJson() => {
-    'tipe_transaksi': tipeTransaksi,
-    'jumlah': jumlah,
-    'kategori': kategori,
-    'deskripsi': deskripsi,
-    'tanggal': tanggal,
-  };
+  Map<String, dynamic> toJson() {
+    final payload = <String, dynamic>{
+      'tipe_transaksi': tipeTransaksi,
+      'jumlah': jumlah,
+      'tanggal': tanggal,
+    };
+    final kategoriValue = kategori?.trim();
+    final deskripsiValue = deskripsi?.trim();
+
+    if (kategoriValue != null && kategoriValue.isNotEmpty) {
+      payload['kategori'] = kategoriValue;
+    }
+    if (deskripsiValue != null && deskripsiValue.isNotEmpty) {
+      payload['deskripsi'] = deskripsiValue;
+    }
+    return payload;
+  }
 }
 
 class TransactionListResponse {

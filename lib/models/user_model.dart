@@ -37,7 +37,9 @@ class AuthResponse {
   final String token;
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => AuthResponse(
-    user: UserModel.fromJson(Map<String, dynamic>.from(json['user'] as Map)),
+    user: json['user'] is Map
+        ? UserModel.fromJson(Map<String, dynamic>.from(json['user'] as Map))
+        : UserModel.fromJson(const {}),
     token: json['token']?.toString() ?? '',
   );
 }
