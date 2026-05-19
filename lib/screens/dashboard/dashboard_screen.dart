@@ -500,3 +500,4 @@ class _InlineBanner extends StatelessWidget {
     );
   }
 }
+
