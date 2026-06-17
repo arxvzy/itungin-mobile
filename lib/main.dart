@@ -18,10 +18,15 @@ import 'services/chat_service.dart';
 import 'services/dashboard_service.dart';
 import 'services/target_service.dart';
 import 'services/transaction_service.dart';
+// 1. TAMBAHKAN IMPORT INI:
+import 'services/notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID');
+
+  // 2. JALANKAN INISIALISASI NOTIFIKASI DI SINI:
+  await NotificationService.init();
 
   final storage = SecureStorageService();
   final diagnostics = ApiDiagnosticsProvider(ApiConstants.baseUrl);

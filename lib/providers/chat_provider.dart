@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../core/network/api_exception.dart';
 import '../models/chat_model.dart';
 import '../services/chat_service.dart';
+// TAMBAHKAN IMPORT INI
+import '../services/notification_service.dart';
 
 class ChatProvider extends ChangeNotifier {
   ChatProvider(this._service) {
@@ -31,6 +33,14 @@ class ChatProvider extends ChangeNotifier {
       messages.add(ChatMessageModel(message: reply, isUser: false));
       isLoading = false;
       notifyListeners();
+
+      // 🔥 TAMBAHKAN NOTIFIKASI DI SINI:
+      NotificationService.showInstantNotification(
+        id: DateTime.now().millisecondsSinceEpoch ~/ 1000, // ID Unik dari timestamp
+        title: "Itungin AI Assistant 🤖",
+        body: reply.length > 50 ? "${reply.substring(0, 50)}..." : reply, // Cuplikan teks AI
+      );
+
       return true;
     } on ApiException catch (error) {
       errorMessage = error.message;

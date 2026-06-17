@@ -10,12 +10,15 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    compileOptions {
+   compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        // Ubah dari VERSION_1_8 menjadi VERSION_11
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
+        // Ubah dari VERSION_1_8 menjadi VERSION_11
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
@@ -28,6 +31,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // 2. TAMBAHKAN BARIS INI:
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -41,4 +47,9 @@ android {
 
 flutter {
     source = "../.."
+}
+
+// 3. TAMBAHKAN BLOK DEPENDENCIES INI DI PALING BAWAH:
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }

@@ -13,17 +13,17 @@ class ApiConstants {
     if (kDebugMode) {
       switch (defaultTargetPlatform) {
         case TargetPlatform.android:
-          return 'https://itungin.my.id/api';
+          return 'https://mobile.itungin.my.id/api';
         case TargetPlatform.iOS:
         case TargetPlatform.macOS:
         case TargetPlatform.linux:
         case TargetPlatform.windows:
-          return 'https://itungin.my.id/api';
+          return 'https://mobile.itungin.my.id/api';
         case TargetPlatform.fuchsia:
-          return 'https://itungin.my.id/api';
+          return 'https://mobile.itungin.my.id/api';
       }
     }
 
-    return 'https://itungin.my.id/api';
+    return 'https://mobile.itungin.my.id/api';
   }
 }
