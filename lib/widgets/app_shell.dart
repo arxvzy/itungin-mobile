@@ -7,6 +7,8 @@ import '../screens/chat/chat_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/targets/target_list_screen.dart';
 import '../screens/transactions/transaction_list_screen.dart';
+// 🔥 IMPORT PROFILE SCREEN AGAR BISA DIBUKA
+import '../screens/profile/profile_screen.dart';
 
 const appBlue = Color(0xFF0757F8);
 const textDark = Color(0xFF1B1F23);
@@ -56,6 +58,7 @@ class AppHeader extends StatelessWidget {
             ],
           ),
           const Spacer(),
+          // 🎯 KOTAK PUTIH INDAH: SEKARANG BERFUNGSI SEBAGAI TOMBOL PROFIL
           Container(
             width: 44,
             height: 44,
@@ -71,39 +74,16 @@ class AppHeader extends StatelessWidget {
               ],
             ),
             child: IconButton(
-              onPressed: () async {
-                final auth = context.read<AuthProvider>();
-                final navigator = Navigator.of(context);
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (dialogContext) {
-                    return AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Yakin ingin keluar dari akun ini?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(false),
-                          child: const Text('Batal'),
-                        ),
-                        FilledButton(
-                          onPressed: () =>
-                              Navigator.of(dialogContext).pop(true),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFB42318),
-                          ),
-                          child: const Text('Logout'),
-                        ),
-                      ],
-                    );
-                  },
+              onPressed: () {
+                // 🚀 LANGSUNG BERPINDAH KE PROFILE SCREEN SAAT DIKLIK
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileScreen(),
+                  ),
                 );
-                if (confirmed != true) return;
-                await auth.logout();
-                navigator.popUntil((route) => route.isFirst);
               },
-              icon: const Icon(Icons.logout_rounded, color: appBlue),
-              tooltip: 'Logout',
+              icon: const Icon(Icons.person_rounded, color: appBlue, size: 24),
+              tooltip: 'Profil',
             ),
           ),
         ],

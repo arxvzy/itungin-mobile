@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../core/network/api_exception.dart';
 import '../core/storage/secure_storage_service.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
-import '../services/notification_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider(this._service, this._storage);
@@ -69,14 +69,6 @@ class AuthProvider extends ChangeNotifier {
       isAuthenticated = true;
       isLoading = false;
       notifyListeners();
-
-      // 🔥 NOTIFIKASI BERHASIL LOGIN / REGISTER (Memakai Channel Baru)
-      NotificationService.showInstantNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000, 
-        title: "Selamat Datang di Itungin! 👋",
-        body: "Halo ${user?.name ?? 'User'}, kamu berhasil masuk ke aplikasi.",
-      );
-
       return true;
     } on ApiException catch (error) {
       errorMessage = error.message;
@@ -98,13 +90,6 @@ class AuthProvider extends ChangeNotifier {
     user = null;
     isAuthenticated = false;
     notifyListeners();
-
-    // 🔥 NOTIFIKASI BERHASIL LOGOUT
-    NotificationService.showInstantNotification(
-          id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          title: "Sampai Jumpa! 👋",
-          body: "Kamu telah berhasil keluar dari akun Itungin.",
-        );
   }
 
   Future<void> handleUnauthorized() async {

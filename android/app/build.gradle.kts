@@ -10,15 +10,13 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-   compileOptions {
+    compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        // Ubah dari VERSION_1_8 menjadi VERSION_11
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        // Ubah dari VERSION_1_8 menjadi VERSION_11
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
@@ -52,4 +50,16 @@ flutter {
 // 3. TAMBAHKAN BLOK DEPENDENCIES INI DI PALING BAWAH:
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+}
+
+subprojects {
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            val android = project.extensions.findByName("android") as? com.android.build.gradle.BaseExtension
+            android?.compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_11
+                targetCompatibility = JavaVersion.VERSION_11
+            }
+        }
+    }
 }
