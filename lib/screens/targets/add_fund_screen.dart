@@ -18,6 +18,12 @@ class _AddFundScreenState extends State<AddFundScreen> {
   final _amount = TextEditingController();
   String? _localError;
 
+  @override
+  void dispose() {
+    _amount.dispose();
+    super.dispose();
+  }
+
   Future<void> _submit() async {
     final amount =
         int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -27,8 +33,12 @@ class _AddFundScreenState extends State<AddFundScreen> {
       });
       return;
     }
+    
     final provider = context.read<TargetProvider>();
-    final ok = await provider.addFund(widget.target.id, amount);
+    
+    // 🔥 OPER CONTEXT AGAR SNACKBAR TEMBAH DANA MUNCUL AUTOMATIC
+    final ok = await provider.addFund(context, widget.target.id, amount);
+    
     if (!mounted) return;
     if (ok) {
       Navigator.pop(context);

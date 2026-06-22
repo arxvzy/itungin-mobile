@@ -40,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       return;
     }
+    
     final auth = context.read<AuthProvider>();
     final ok = await auth.register(
       name: _name.text,
@@ -48,12 +49,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: _password.text,
       passwordConfirmation: _confirm.text,
     );
+    
     if (!mounted) return;
+    
     if (ok) {
       setState(() => _localError = null);
       FocusScope.of(context).unfocus();
+
+      await auth.logout(); 
+
+      if (!mounted) return;
+
+      showSnack(context, 'Registrasi Berhasil! Silakan masuk.');
+
+      Navigator.of(context).pop(); 
       return;
     }
+    
     if (auth.errorMessage != null) {
       setState(() => _localError = auth.errorMessage);
       showSnack(context, auth.errorMessage!);

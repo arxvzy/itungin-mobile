@@ -33,6 +33,14 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _name.dispose();
+    _amount.dispose();
+    _category.dispose();
+    super.dispose();
+  }
+
   Future<void> _save() async {
     final amount =
         int.tryParse(_amount.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
@@ -42,7 +50,10 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
       });
       return;
     }
+    
+    // 🔥 OPER CONTEXT UNTUK TRIGGER NOTIFIKASI
     final ok = await context.read<TargetProvider>().saveTarget(
+      context,
       CreateTargetRequest(
         namaTarget: _name.text,
         targetJumlah: amount,
@@ -51,6 +62,7 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
       ),
       id: widget.target?.id,
     );
+    
     if (!mounted) return;
     if (ok) Navigator.pop(context);
   }
@@ -75,9 +87,12 @@ class _TargetFormScreenState extends State<TargetFormScreen> {
         ],
       ),
     );
+    
     if (confirm != true || !mounted) return;
-    await context.read<TargetProvider>().deleteTarget(id);
-    if (mounted) Navigator.pop(context);
+    
+    // 🔥 OPER CONTEXT KE PROVIDER UNTUK TRIGGER NOTIFIKASI HAPUS
+    final ok = await context.read<TargetProvider>().deleteTarget(context, id);
+    if (ok && mounted) Navigator.pop(context);
   }
 
   @override

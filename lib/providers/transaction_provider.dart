@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/network/api_exception.dart';
 import '../models/transaction_model.dart';
 import '../services/transaction_service.dart';
+import '../widgets/app_shell.dart'; 
 
 class TransactionProvider extends ChangeNotifier {
   TransactionProvider(this._service);
@@ -37,14 +38,17 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   Future<bool> saveTransaction(
+    BuildContext context, // 
     CreateTransactionRequest request, {
     int? id,
   }) async {
     try {
       if (id == null) {
         await _service.createTransaction(request);
+        showSnack(context, 'Transaksi baru berhasil disimpan!');
       } else {
         await _service.updateTransaction(id, request);
+        showSnack(context, 'Perubahan transaksi berhasil disimpan!');
       }
       await fetchTransactions(filter: currentFilter);
       return true;
@@ -55,8 +59,21 @@ class TransactionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteTransaction(int id) async {
-    await _service.deleteTransaction(id);
-    await fetchTransactions(filter: currentFilter);
+  // UPDATE: Menambahkan BuildContext dan mengubah return type menjadi Future<bool>
+  // agar screen tahu kalau proses hapus selesai dan sukses.
+  Future<bool> deleteTransaction(BuildContext context, int id) async { 
+    try {
+      await _service.deleteTransaction(id);
+      
+      // 🌟 NOTIFIKASI BERHASIL HAPUS
+      showSnack(context, 'Transaksi berhasil dihapus! ');
+      
+      await fetchTransactions(filter: currentFilter);
+      return true;
+    } catch (e) {
+      errorMessage = 'Gagal menghapus transaksi.';
+      notifyListeners();
+      return false;
+    }
   }
 }

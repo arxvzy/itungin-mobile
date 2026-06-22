@@ -35,11 +35,21 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.read<AuthProvider>();
     final ok = await auth.login(_username.text, _password.text);
     if (!mounted) return;
+    
     if (ok) {
       setState(() => _localError = null);
       FocusScope.of(context).unfocus();
+      
+      // 1. TAMPILKAN SNACKBAR SUKSES OTOMATIS
+      showSnack(context, 'Login Berhasil! Selamat datang!');
+
+      if (!mounted) return;
+
+      // 2. NAVIGASI KE DASHBOARD
+      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       return;
     }
+    
     if (auth.errorMessage != null) {
       setState(() => _localError = auth.errorMessage);
       showSnack(context, auth.errorMessage!);

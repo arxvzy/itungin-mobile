@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/network/api_exception.dart';
 import '../models/target_model.dart';
 import '../services/target_service.dart';
+import '../widgets/app_shell.dart'; //  SINKRONISASI RELATIF
 
 class TargetProvider extends ChangeNotifier {
   TargetProvider(this._service);
@@ -36,12 +37,15 @@ class TargetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> saveTarget(CreateTargetRequest request, {int? id}) async {
+  // TAMBAH CONTEXT & NOTIFIKASI SIMPAN/UPDATE
+  Future<bool> saveTarget(BuildContext context, CreateTargetRequest request, {int? id}) async {
     try {
       if (id == null) {
         await _service.createTarget(request);
+        showSnack(context, 'Target tabungan baru berhasil dibuat!');
       } else {
         await _service.updateTarget(id, request);
+        showSnack(context, 'Perubahan target berhasil disimpan!');
       }
       await fetchTargets();
       return true;
@@ -52,9 +56,11 @@ class TargetProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> addFund(int id, int amount) async {
+  // TAMBAH CONTEXT & NOTIFIKASI TAMBAH DANA
+  Future<bool> addFund(BuildContext context, int id, int amount) async {
     try {
       await _service.addFund(id, amount);
+      showSnack(context, 'Dana berhasil ditambahkan ke target!');
       await fetchTargets();
       return true;
     } on ApiException catch (error) {
@@ -64,8 +70,17 @@ class TargetProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteTarget(int id) async {
-    await _service.deleteTarget(id);
-    await fetchTargets();
+  // TAMBAH CONTEXT & NOTIFIKASI HAPUS
+  Future<bool> deleteTarget(BuildContext context, int id) async {
+    try {
+      await _service.deleteTarget(id);
+      showSnack(context, 'Target tabungan berhasil dihapus!');
+      await fetchTargets();
+      return true;
+    } catch (_) {
+      errorMessage = 'Gagal menghapus target.';
+      notifyListeners();
+      return false;
+    }
   }
 }

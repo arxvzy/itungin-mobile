@@ -29,10 +29,18 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (tx != null) {
       _type = tx.tipeTransaksi;
       _amount.text = tx.jumlah.toString();
-      _category.text = tx.kategori;
-      _description.text = tx.deskripsi;
+      _category.text = tx.kategori ?? '';
+      _description.text = tx.deskripsi ?? '';
       _date = DateTime.tryParse(tx.tanggal) ?? DateTime.now();
     }
+  }
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _category.dispose();
+    _description.dispose();
+    super.dispose();
   }
 
   Future<void> _save() async {
@@ -51,11 +59,16 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       kategori: _category.text.trim().isEmpty ? null : _category.text,
       deskripsi: _description.text.trim().isEmpty ? null : _description.text,
     );
+    
     final provider = context.read<TransactionProvider>();
+    
+    //  SINKRONISASI: Menambahkan 'context' sebagai parameter pertama
     final ok = await provider.saveTransaction(
+      context,
       request,
       id: widget.transaction?.id,
     );
+    
     if (!mounted) return;
     if (ok) {
       Navigator.pop(context);
@@ -68,6 +81,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   Future<void> _delete() async {
     final id = widget.transaction?.id;
     if (id == null) return;
+    
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -85,9 +99,15 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         ],
       ),
     );
+    
     if (confirm != true || !mounted) return;
-    await context.read<TransactionProvider>().deleteTransaction(id);
-    if (mounted) Navigator.pop(context);
+    
+    //  SINKRONISASI: Mengubah fungsi hapus dengan mengoper 'context' dan menangkap status return booleannya
+    final ok = await context.read<TransactionProvider>().deleteTransaction(context, id);
+    
+    if (ok && mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
