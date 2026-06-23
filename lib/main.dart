@@ -13,6 +13,8 @@ import 'providers/dashboard_provider.dart';
 import 'providers/nav_provider.dart';
 import 'providers/target_provider.dart';
 import 'providers/transaction_provider.dart';
+import 'providers/forgot_provider.dart'; 
+
 import 'services/auth_service.dart';
 import 'services/chat_service.dart';
 import 'services/dashboard_service.dart';
@@ -49,6 +51,10 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => ChatProvider(ChatService(dioClient)),
+        ),
+        // 🔥 2. TAMBAHKAN BARIS INI DI PALING BAWAH LIST PROVIDERS
+        ChangeNotifierProvider(
+          create: (_) => ForgotProvider(),
         ),
       ],
       child: const ItunginApp(),

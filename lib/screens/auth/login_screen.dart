@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/app_shell.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart'; // 🔥 1. TAMBAHKAN IMPORT INI
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -181,7 +182,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 22),
+                      
+                      // 🔥 2. TAMBAHKAN TOMBOL LUPA PASSWORD DI SINI
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const ForgotPasswordScreen(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Lupa Password?',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10), // Jarak sedikit ke tombol bawah
+
                       SizedBox(
                         width: double.infinity,
                         height: 56,
